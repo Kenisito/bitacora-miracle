@@ -1,38 +1,112 @@
-<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bitácora · Make a Miracle</title><style>
-*{box-sizing:border-box}body{margin:0;background:#f2f6fc;color:#11294c;font:16px system-ui}main{max-width:850px;margin:auto;padding:28px 18px}header{background:#123970;color:white;padding:30px;border-radius:16px}h1{margin:8px 0;font-size:clamp(28px,6vw,44px)}section,article{background:white;border:1px solid #dbe5f2;border-radius:12px;padding:18px;margin-top:16px}form{display:grid;gap:10px}label{display:grid;gap:4px}input,select,textarea,button{font:inherit;border:1px solid #9db2ce;border-radius:7px;padding:8px}button{background:#1757bb;color:white;cursor:pointer}textarea{min-height:88px}p{white-space:pre-wrap}h2{margin:0 0 10px}
-</style><main><header><small>MAKE A MIRACLE / LEVANTAMIENTO</small><h1>Bitácora de reuniones</h1><p>Registra acuerdos, riesgos y próximos pasos a medida que se conozcan las áreas de la ONG.</p></header><section><h2>Nueva entrada</h2><p>El registro se guarda en este navegador. Usa solo información apta para este espacio y evita datos personales de menores.</p><form><label>Título<input name="titulo" required maxlength="160"></label><label>Tipo<select name="tipo"><option>Acuerdo</option><option>Riesgo</option><option>Próximo paso</option><option>Observación</option></select></label><label>Área<input name="area" maxlength="100"></label><label>Responsable o rol<input name="responsable" maxlength="100"></label><label>Fecha de seguimiento<input type="date" name="fecha"></label><label>Detalle<textarea name="detalle" required maxlength="2000"></textarea></label><button>Guardar entrada</button><output aria-live="polite"></output></form></section><section><h2>Entradas</h2><div id="entradas"></div></section></main><script>
-const clave='make-a-miracle-bitacora-v1';
-const lista=document.querySelector('#entradas');
-const formulario=document.querySelector('form');
-const mensaje=document.querySelector('output');
-let registros=[];
-try{registros=JSON.parse(localStorage.getItem(clave)||'[]');if(!Array.isArray(registros))registros=[];}catch{}
-function mostrar(){
- lista.replaceChildren();
- if(!registros.length){lista.textContent='Aún no hay entradas. Agrega la primera durante la reunión.';return;}
- for(const registro of registros){
-  const ficha=document.createElement('article');
-  const titulo=document.createElement('h3');
-  titulo.textContent=registro.titulo;
-  const meta=document.createElement('small');
-  meta.textContent=[registro.tipo,registro.area,registro.responsable,registro.fecha].filter(Boolean).join(' · ');
-  const detalle=document.createElement('p');
-  detalle.textContent=registro.detalle;
-  ficha.append(titulo,meta,detalle);
-  lista.append(ficha);
- }
+<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bitácora · Make a Miracle</title><style>:root{font:15px system-ui,sans-serif;color:#102443;background:#f5f7fb;--blue:#1757cc;--nav:#10264a;--muted:#536783;--line:#dce4f0}*{box-sizing:border-box}body{margin:0;display:grid;grid-template-columns:236px minmax(0,1fr);min-height:100vh}aside{background:var(--nav);color:#e8f0ff;display:flex;flex-direction:column;padding:28px 16px 20px;position:sticky;top:0;height:100vh}.brand{display:flex;align-items:center;gap:10px;font-weight:800;font-size:17px}.logo{display:grid;place-items:center;background:#357cf0;border-radius:10px;width:38px;height:38px;font-size:26px}.brand small,.sidefoot small{display:block;font-size:10px;letter-spacing:.08em;color:#a5b8d9;margin-top:4px}.navlabel{color:#9eb5d7;font-size:10px;letter-spacing:.14em;font-weight:800;margin:44px 10px 12px}nav{display:grid;gap:5px}nav a{color:#d4e1f6;text-decoration:none;padding:11px;border-radius:8px;display:flex;gap:11px}nav a[aria-current],nav a:hover{background:#233f6a;color:white}nav a[aria-current]{box-shadow:inset 3px 0 #6ba8ff}nav i{font-style:normal;width:19px;text-align:center}.sidefoot{margin-top:auto;border-top:1px solid #365074;padding:18px 4px 0;font-size:12px}.sidefoot span{color:#83c9ff}.sidefoot small{padding-left:14px}header{min-height:62px;padding:12px clamp(18px,4vw,48px);background:white;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;align-items:center;color:var(--muted);font-size:13px}header b{margin:0 7px;color:#9aabc1}header strong{color:#1a365c}.private,.tag{display:inline-block;padding:4px 9px;border-radius:30px;background:#eaf1ff;color:#2456a4;font-size:12px;font-weight:650}.private{white-space:nowrap}main{max-width:1400px;margin:auto;padding:30px clamp(18px,4vw,48px) 50px}.hero{position:relative;overflow:hidden;background:linear-gradient(115deg,#103771,#215db1);color:white;border-radius:17px;padding:32px 34px}.hero:after{content:'✦';position:absolute;right:3%;top:-60px;color:#ffffff15;font-size:300px;line-height:1;pointer-events:none}.hero p{color:#e0ebff;max-width:60ch}.hero .primary{background:#fff;color:#16478d;margin-top:7px}.eyebrow{letter-spacing:.14em;font-size:11px;font-weight:800;color:#2760ae;text-transform:uppercase}.hero .eyebrow{color:#bbd8ff}h1{font-size:clamp(29px,4vw,45px);line-height:1.08;letter-spacing:-.045em;margin:9px 0 10px}h2{margin:0;font-size:20px;letter-spacing:-.02em}h3{margin:0 0 7px;font-size:16px}p{line-height:1.55;margin:7px 0 16px;color:var(--muted)}.grid{display:grid;gap:14px;grid-template-columns:repeat(auto-fit,minmax(min(180px,100%),1fr));margin:18px 0}.card,.panel{background:white;border:1px solid var(--line);border-radius:13px;padding:17px 19px}.card strong{display:block;font-size:29px;letter-spacing:-.04em}.card small{color:var(--muted)}.panel{margin-top:16px}.sectionhead,.toolbar,.formfoot,.dialoghead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap}.toolbar{justify-content:flex-start;margin:15px 0}.toolbar input{min-width:min(220px,100%)}button,.button,input,select,textarea{font:inherit}button,.button{cursor:pointer;border:1px solid #cedaec;background:white;color:#163b73;padding:8px 12px;border-radius:8px;font-weight:650;text-decoration:none;display:inline-block}button:hover,.button:hover{filter:brightness(.95)}.primary{background:var(--blue);border-color:transparent;color:white}.subtle{padding:4px 8px;font-size:12px}.tablewrap{overflow:auto}table{border-collapse:collapse;width:100%;text-align:left;font-size:13px}th{background:#f2f6fc;color:#47617f;font-size:11px;text-transform:uppercase;letter-spacing:.045em}td,th{padding:11px 10px;border-bottom:1px solid #e4ebf4;vertical-align:top}td small{display:block;color:var(--muted);margin-top:4px}.notice{padding:12px 15px;border-left:3px solid #348ff5;background:#eaf3ff;border-radius:6px;color:#24456f}.muted{color:var(--muted)}.warn{background:#fff0da;color:#824500}.done{background:#e5f6ee;color:#116347}.steps{display:grid;gap:10px}.step{display:flex;align-items:flex-start;gap:14px;border-bottom:1px solid #e5edf7;padding:11px 0}.step .tag{flex:none}.step p{margin:3px 0}.split{display:grid;grid-template-columns:1fr 1fr;gap:15px}.split ul{padding-left:18px;line-height:1.65;color:var(--muted)}dialog{width:min(600px,calc(100% - 24px));max-height:90vh;border:1px solid var(--line);border-radius:15px;padding:22px;color:inherit}dialog::backdrop{background:#0a204ab0}#fields{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}label{display:grid;gap:4px;font-size:13px;font-weight:650}label.wide{grid-column:1/-1}input,select,textarea{min-width:0;border:1px solid #b8c9e0;border-radius:7px;padding:8px;color:#163359;background:white}textarea{resize:vertical;min-height:58px}.formfoot{justify-content:flex-end}#error{color:#a02126}#toast{position:fixed;right:20px;bottom:20px;background:#10264a;color:white;border-radius:8px;padding:0;z-index:2}#toast:not(:empty){padding:12px 16px}:focus-visible{outline:3px solid #348ff5;outline-offset:2px}@media(max-width:780px){body{display:block}aside{height:auto;position:static;padding:14px}.navlabel,.sidefoot{display:none}nav{display:flex;overflow:auto;margin-top:8px}nav a{white-space:nowrap;font-size:13px}.split{grid-template-columns:1fr}.hero{padding:24px}.hero:after{display:none}}@media(max-width:440px){#fields{grid-template-columns:1fr}}
+#results{overflow:auto}td small{white-space:pre-wrap}#status{margin:8px 0}dialog::backdrop{background:#0a204ab0}
+</style></head><body><aside><div class="brand"><span class="logo" aria-hidden="true">✦</span><div>Make a Miracle<small>TRANSFORMACIÓN DIGITAL</small></div></div><p class="navlabel">ESPACIO DE TRABAJO</p><nav aria-label="Vistas"><a href="#bitacora" aria-current="page"><i aria-hidden="true">▧</i>Bitácora</a></nav><div class="sidefoot"><span>●</span> Primera reunión<small>Levantamiento de información</small></div></aside>
+<div class="shell"><header><span>Espacio de trabajo <b>/</b> <strong>Bitácora</strong></span><span class="private">Guardado local</span></header><main id="bitacora">
+<div class="sectionhead"><div><div class="eyebrow">Gobierno / Seguimiento</div><h1>Bitácora</h1></div><button class="primary" id="nuevo">+ Registro</button></div>
+<p>Registra decisiones, riesgos y próximos pasos de las reuniones de Make a Miracle.</p>
+<p class="notice">Las entradas se guardan en este navegador. Evita registrar datos personales de menores.</p>
+<section class="panel" aria-label="Registros"><div class="toolbar"><input id="search" type="search" aria-label="Buscar registros" placeholder="Buscar registros…"><select id="filter" aria-label="Filtrar por tipo"><option>Todos</option><option>Decisión</option><option>Acuerdo</option><option>Riesgo</option><option>Próximo paso</option><option>Observación</option></select></div><div id="results"></div><p id="status" role="status"></p></section></main></div>
+<dialog id="editor" aria-labelledby="formtitle"><form id="form"><div class="dialoghead"><h2 id="formtitle">Nuevo registro</h2><button type="button" data-close aria-label="Cerrar">×</button></div><div id="fields">
+<label>Título<input name="titulo" required maxlength="160"></label><label>Tipo<select name="tipo"><option>Decisión</option><option>Acuerdo</option><option>Riesgo</option><option>Próximo paso</option><option>Observación</option></select></label>
+<label>Área<input name="area" maxlength="100"></label><label>Responsable o rol<input name="responsable" maxlength="100"></label>
+<label>Estado<select name="estado"><option>Abierto</option><option>En revisión</option><option>Cerrado</option></select></label><label>Fecha de revisión<input name="fecha" type="date"></label>
+<label class="wide">Contexto y acción acordada<textarea name="detalle" required maxlength="2000"></textarea></label></div><p id="error" role="alert"></p><div class="formfoot"><button type="button" data-close>Cancelar</button><button class="primary">Guardar</button></div></form></dialog>
+<script>
+const key = 'make-a-miracle-bitacora-v1';
+const $ = id => document.getElementById(id);
+const form = $('form');
+const editor = $('editor');
+let records = [];
+let editing = -1;
+let readable = true;
+try {
+  records = JSON.parse(localStorage.getItem(key) || '[]');
+  if (!Array.isArray(records) || records.some(row => !row || typeof row.titulo !== 'string')) throw Error();
+} catch {
+  readable = false;
+  records = [];
+  $('status').textContent = 'No se pudo leer el almacenamiento local.';
+  $('nuevo').disabled = true;
 }
-formulario.addEventListener('submit',evento=>{
- evento.preventDefault();
- const registro=Object.fromEntries([...new FormData(formulario)].map(([k,v])=>[k,v.trim()]));
- if(!registro.titulo||!registro.detalle){mensaje.textContent='Completa el título y el detalle.';return;}
- const siguiente=[registro,...registros];
- try{localStorage.setItem(clave,JSON.stringify(siguiente));}
- catch{mensaje.textContent='No se pudo guardar en este navegador.';return;}
- registros=siguiente;
- formulario.reset();
- mostrar();
- mensaje.textContent='Entrada guardada.';
+function element(tag, text, className) {
+  const node = document.createElement(tag);
+  node.textContent = text;
+  if (className) node.className = className;
+  return node;
+}
+function render() {
+  const results = $('results');
+  results.replaceChildren();
+  if (!readable) return;
+  const q = $('search').value.trim().toLocaleLowerCase('es');
+  const type = $('filter').value;
+  const matches = records.map((row, index) => ({row,index})).filter(({row}) =>
+    (type === 'Todos' || row.tipo === type) &&
+    [...Object.values(row),row.estado || 'Abierto'].join(' ').toLocaleLowerCase('es').includes(q));
+  if (!matches.length) {
+    results.append(element('p', records.length ? 'Sin resultados para estos filtros.' : 'Registra aquí las decisiones, riesgos y próximos pasos que surjan en la reunión.', 'notice'));
+    return;
+  }
+  const table = document.createElement('table');
+  const headings = table.createTHead().insertRow();
+  for (const label of ['Registro','Tipo','Área / Responsable','Estado / Revisión','Acción']) {
+    const heading = element('th', label);
+    heading.scope = 'col';
+    headings.append(heading);
+  }
+  const body = table.createTBody();
+  for (const {row,index} of matches) {
+    const tr = body.insertRow();
+    tr.insertCell().append(element('b',row.titulo),element('small',row.detalle || ''));
+    tr.insertCell().append(element('span',row.tipo || 'Observación','tag'));
+    tr.insertCell().append(element('span',row.area || 'Por definir'),element('small',row.responsable || 'Sin responsable'));
+    tr.insertCell().append(element('span',row.estado || 'Abierto',row.estado === 'Cerrado' ? 'tag done' : 'tag'),element('small',row.fecha || 'Sin fecha'));
+    const button = element('button','Editar','subtle');
+    button.type = 'button';
+    button.addEventListener('click',()=>openEditor(index));
+    tr.insertCell().append(button);
+  }
+  results.append(table);
+}
+function openEditor(index = -1) {
+  editing = index;
+  form.reset();
+  $('error').textContent = '';
+  $('formtitle').textContent = index < 0 ? 'Nuevo registro' : 'Editar registro';
+  if (index >= 0) {
+    const row = records[index];
+    for (const name of ['titulo','tipo','area','responsable','estado','fecha','detalle']) {
+      const input = form.elements.namedItem(name);
+      if (typeof row[name] === 'string') input.value = row[name];
+    }
+  }
+  editor.showModal();
+}
+$('nuevo').addEventListener('click',()=>openEditor());
+$('search').addEventListener('input',render);
+$('filter').addEventListener('change',render);
+for (const button of editor.querySelectorAll('[data-close]')) button.addEventListener('click',()=>editor.close());
+form.addEventListener('submit',event=>{
+  event.preventDefault();
+  const row = Object.fromEntries([...new FormData(form)].map(([name,value])=>[name,value.trim()]));
+  if (!row.titulo || !row.detalle) {
+    $('error').textContent = 'Completa el título y el detalle.';
+    return;
+  }
+  const next = records.slice();
+  if (editing < 0) next.unshift(row);
+  else next[editing] = row;
+  try { localStorage.setItem(key,JSON.stringify(next)); }
+  catch {
+    $('error').textContent = 'No se pudo guardar en este navegador.';
+    return;
+  }
+  records = next;
+  editor.close();
+  $('search').value = '';
+  $('filter').value = 'Todos';
+  render();
+  $('status').textContent = 'Registro guardado.';
 });
-mostrar();
-</script></html>
+render();
+</script></body></html>
