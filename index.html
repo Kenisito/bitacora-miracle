@@ -1,0 +1,38 @@
+<!doctype html><html lang="es"><meta charset="utf-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>Bitácora · Make a Miracle</title><style>
+*{box-sizing:border-box}body{margin:0;background:#f2f6fc;color:#11294c;font:16px system-ui}main{max-width:850px;margin:auto;padding:28px 18px}header{background:#123970;color:white;padding:30px;border-radius:16px}h1{margin:8px 0;font-size:clamp(28px,6vw,44px)}section,article{background:white;border:1px solid #dbe5f2;border-radius:12px;padding:18px;margin-top:16px}form{display:grid;gap:10px}label{display:grid;gap:4px}input,select,textarea,button{font:inherit;border:1px solid #9db2ce;border-radius:7px;padding:8px}button{background:#1757bb;color:white;cursor:pointer}textarea{min-height:88px}p{white-space:pre-wrap}h2{margin:0 0 10px}
+</style><main><header><small>MAKE A MIRACLE / LEVANTAMIENTO</small><h1>Bitácora de reuniones</h1><p>Registra acuerdos, riesgos y próximos pasos a medida que se conozcan las áreas de la ONG.</p></header><section><h2>Nueva entrada</h2><p>El registro se guarda en este navegador. Usa solo información apta para este espacio y evita datos personales de menores.</p><form><label>Título<input name="titulo" required maxlength="160"></label><label>Tipo<select name="tipo"><option>Acuerdo</option><option>Riesgo</option><option>Próximo paso</option><option>Observación</option></select></label><label>Área<input name="area" maxlength="100"></label><label>Responsable o rol<input name="responsable" maxlength="100"></label><label>Fecha de seguimiento<input type="date" name="fecha"></label><label>Detalle<textarea name="detalle" required maxlength="2000"></textarea></label><button>Guardar entrada</button><output aria-live="polite"></output></form></section><section><h2>Entradas</h2><div id="entradas"></div></section></main><script>
+const clave='make-a-miracle-bitacora-v1';
+const lista=document.querySelector('#entradas');
+const formulario=document.querySelector('form');
+const mensaje=document.querySelector('output');
+let registros=[];
+try{registros=JSON.parse(localStorage.getItem(clave)||'[]');if(!Array.isArray(registros))registros=[];}catch{}
+function mostrar(){
+ lista.replaceChildren();
+ if(!registros.length){lista.textContent='Aún no hay entradas. Agrega la primera durante la reunión.';return;}
+ for(const registro of registros){
+  const ficha=document.createElement('article');
+  const titulo=document.createElement('h3');
+  titulo.textContent=registro.titulo;
+  const meta=document.createElement('small');
+  meta.textContent=[registro.tipo,registro.area,registro.responsable,registro.fecha].filter(Boolean).join(' · ');
+  const detalle=document.createElement('p');
+  detalle.textContent=registro.detalle;
+  ficha.append(titulo,meta,detalle);
+  lista.append(ficha);
+ }
+}
+formulario.addEventListener('submit',evento=>{
+ evento.preventDefault();
+ const registro=Object.fromEntries([...new FormData(formulario)].map(([k,v])=>[k,v.trim()]));
+ if(!registro.titulo||!registro.detalle){mensaje.textContent='Completa el título y el detalle.';return;}
+ const siguiente=[registro,...registros];
+ try{localStorage.setItem(clave,JSON.stringify(siguiente));}
+ catch{mensaje.textContent='No se pudo guardar en este navegador.';return;}
+ registros=siguiente;
+ formulario.reset();
+ mostrar();
+ mensaje.textContent='Entrada guardada.';
+});
+mostrar();
+</script></html>
